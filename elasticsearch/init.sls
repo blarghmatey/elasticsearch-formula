@@ -12,6 +12,7 @@ setup_pkg_repo:
     {% elif os_family == 'RedHat' %}
     - baseurl: http://packages.elasticsearch.org/elasticsearch/1.3/centos
     - gpgcheck: 1
+    - enabled: 1
     {% endif %}
     - key_url: http://packages.elasticsearch.org/GPG-KEY-elasticsearch
     - require_in:
@@ -25,6 +26,8 @@ sysctl_settings:
 elasticsearch_pkg_reqs:
   pkg.installed:
     - pkgs: {{ elasticsearch.pkgs }}
+    - require:
+        - file: sysctl_settings
 
 {% if cluster_name %}
 elasticsearch_cluster_name:
@@ -35,6 +38,8 @@ elasticsearch_cluster_name:
     - append_if_not_found: True
     - require:
         - pkg: elasticsearch_pkg_reqs
+    - require_in:
+        - service: start_elasticsearch
 {% endif %}
 
 {% if node_name %}
@@ -46,9 +51,13 @@ elasticsearch_node_name:
     - append_if_not_found: True
     - require:
         - pkg: elasticsearch_pkg_reqs
+    - require_in:
+        - service: start_elasticsearch
 {% endif %}
 
 start_elasticsearch:
   service.running:
     - name: elasticsearch
     - enable: True
+    - require:
+        - pkg: elasticsearch_pkg_reqs
