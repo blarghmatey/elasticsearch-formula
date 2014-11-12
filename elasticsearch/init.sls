@@ -3,7 +3,7 @@
 {% set os_family = grains['os_family'] %}
 {% set cluster_name = salt['pillar.get']('elasticsearch:cluster_name') %}
 {% set node_name = salt['pillar.get']('elasticsearch:node_name') %}
-{% set use_cors = salt['pillar.get']('elasticsearch:use_cors, True) %}
+{% set use_cors = salt['pillar.get']('elasticsearch:use_cors', True) %}
 
 setup_elasticsearch_pkg_repo:
   pkgrepo.managed:
