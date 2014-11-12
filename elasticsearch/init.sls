@@ -4,7 +4,7 @@
 {% set cluster_name = salt['pillar.get']('elasticsearch:cluster_name') %}
 {% set node_name = salt['pillar.get']('elasticsearch:node_name') %}
 
-setup_pkg_repo:
+setup_elasticsearch_pkg_repo:
   pkgrepo.managed:
     - humanname: ElasticSearch
     {% if os_family == 'Debian' %}
@@ -21,7 +21,7 @@ setup_pkg_repo:
 sysctl_settings:
   file.managed:
     - name: /etc/sysctl.d/60-elasticsearch.conf
-    - source: salt://elasticsearch/files/elasticsearch_syctl.conf
+    - source: salt://elasticsearch/files/elasticsearch_sysctl.conf
 
 elasticsearch_pkg_reqs:
   pkg.installed:
