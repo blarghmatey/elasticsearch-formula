@@ -62,7 +62,7 @@ elasticsearch_cors_config:
     - name: /etc/elasticsearch/elasticsearch.yml
     - text: |
       http.cors.enable: true
-      http.cors.allow-origin: {{ salt['pillar.get']('elasticsearch:allow-origin', '*') }}
+      http.cors.allow-origin: '{{ salt['pillar.get']('elasticsearch:allow-origin', '*') }}'
 {% endif %}
 
 start_elasticsearch:
