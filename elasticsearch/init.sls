@@ -3,6 +3,7 @@
 {% set os_family = grains['os_family'] %}
 {% set cluster_name = salt['pillar.get']('elasticsearch:cluster_name') %}
 {% set node_name = salt['pillar.get']('elasticsearch:node_name') %}
+{% set use_cors = salt['pillar.get']('elasticsearch:use_cors, True) %}
 
 setup_elasticsearch_pkg_repo:
   pkgrepo.managed:
@@ -53,6 +54,15 @@ elasticsearch_node_name:
         - pkg: elasticsearch_pkg_reqs
     - require_in:
         - service: start_elasticsearch
+{% endif %}
+
+{% if use_cors %}
+elasticsearch_cors_config:
+  file.append:
+    - name: /etc/elasticsearch/elasticsearch.yml
+    - text: |
+      http.cors.enable: true
+      http.cors.allow-origin: {{ salt['pillar.get']('elasticsearch:allow-origin', '*') }}
 {% endif %}
 
 start_elasticsearch:
