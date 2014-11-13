@@ -4,6 +4,7 @@
 {% set cluster_name = salt['pillar.get']('elasticsearch:cluster_name') %}
 {% set node_name = salt['pillar.get']('elasticsearch:node_name') %}
 {% set use_cors = salt['pillar.get']('elasticsearch:use_cors', True) %}
+{% set plugin_list = salt['pillar.get']('elasticsearch:plugins', []) %}
 
 setup_elasticsearch_pkg_repo:
   pkgrepo.managed:
@@ -71,3 +72,10 @@ start_elasticsearch:
     - enable: True
     - require:
         - pkg: elasticsearch_pkg_reqs
+
+{% for plugin in plugin_list %}
+elasticsearch_install_{{ plugin.name }}:
+  cmd.run:
+    - name: /usr/share/elasticsearch/bin/plugin -install {{ plugin.path }}
+    - unless: /usr/share/elasticsearch/bin/plugin -l | grep {{ plugin.name }} | wc -l
+{% endfor %}
