@@ -1,0 +1,11 @@
+{% if cluster_name %}
+cluster.name: {{ cluster_name}}
+{% endif %}
+{% if node_name %}
+node.name: {{ node_name }}
+{% endif %}
+http.bind_host: {{ http_host }}
+transport.tcp.port: 9300
+http.port: 9200
+http.cors.enable: {{ use_cors }}
+http.cors.allow-origin: '{{ cors_allow_origin }}'

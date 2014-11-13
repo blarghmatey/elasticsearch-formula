@@ -4,7 +4,9 @@
 {% set cluster_name = salt['pillar.get']('elasticsearch:cluster_name') %}
 {% set node_name = salt['pillar.get']('elasticsearch:node_name') %}
 {% set use_cors = salt['pillar.get']('elasticsearch:use_cors', True) %}
+{% set cors_allow_origin = salt['pillar.get']('elasticsearch:allow-origin', '*') %}
 {% set plugin_list = salt['pillar.get']('elasticsearch:plugins', []) %}
+{% set http_host = salt['pillar.get']('elasticsearch:http_host', '_non_loopback:ipv4_') %}
 
 setup_elasticsearch_pkg_repo:
   pkgrepo.managed:
@@ -31,40 +33,18 @@ elasticsearch_pkg_reqs:
     - require:
         - file: sysctl_settings
 
-{% if cluster_name %}
-elasticsearch_cluster_name:
-  file.replace:
+elasticsearch_config:
+  file.managed:
     - name: /etc/elasticsearch/elasticsearch.yml
-    - pattern: ^#?cluster.name:.*?$
-    - repl: cluster.name: {{ cluster_name }}
-    - append_if_not_found: True
-    - require:
-        - pkg: elasticsearch_pkg_reqs
-    - require_in:
-        - service: start_elasticsearch
-{% endif %}
-
-{% if node_name %}
-elasticsearch_node_name:
-  file.replace:
-    - name: /etc/elasticsearch/elasticsearch.yml
-    - pattern: ^#?node.name:.*?$
-    - repl: node.name: {{ node_name }}
-    - append_if_not_found: True
-    - require:
-        - pkg: elasticsearch_pkg_reqs
-    - require_in:
-        - service: start_elasticsearch
-{% endif %}
-
-{% if use_cors %}
-elasticsearch_cors_config:
-  file.append:
-    - name: /etc/elasticsearch/elasticsearch.yml
-    - text: |
-      http.cors.enable: true
-      http.cors.allow-origin: '{{ salt['pillar.get']('elasticsearch:allow-origin', '*') }}'
-{% endif %}
+    - source: salt://elasticsearch/files/elasticsearch.yml
+    - template: jinja
+    - makedirs: True
+    - context:
+        cluster_name: {{ cluster_name }}
+        node_name: {{ node_name }}
+        http_host: {{ http_host }}
+        use_cors: {{ use_cors }}
+        cors_allow_origin: '{{ cors_allow_origin }}'
 
 start_elasticsearch:
   service.running:
@@ -72,6 +52,8 @@ start_elasticsearch:
     - enable: True
     - require:
         - pkg: elasticsearch_pkg_reqs
+    - watch:
+        - file: elasticsearch_config
 
 {% for plugin in plugin_list %}
 elasticsearch_install_{{ plugin.name }}:
