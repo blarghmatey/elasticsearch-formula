@@ -59,5 +59,5 @@ start_elasticsearch:
 elasticsearch_install_{{ plugin.name }}:
   cmd.run:
     - name: /usr/share/elasticsearch/bin/plugin -install {{ plugin.path }}
-    - unless: /usr/share/elasticsearch/bin/plugin -l | grep {{ plugin.name }} | wc -l
+    - unless: '[ `/usr/share/elasticsearch/bin/plugin -l | grep {{ plugin.name }} | wc -l` -gt 0 ]'
 {% endfor %}
