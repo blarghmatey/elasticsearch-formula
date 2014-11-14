@@ -12,9 +12,9 @@ setup_elasticsearch_pkg_repo:
   pkgrepo.managed:
     - humanname: ElasticSearch
     {% if os_family == 'Debian' %}
-    - name: deb http://packages.elasticsearch.org/elasticsearch/1.3/debian stable main
+    - name: deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main
     {% elif os_family == 'RedHat' %}
-    - baseurl: http://packages.elasticsearch.org/elasticsearch/1.3/centos
+    - baseurl: http://packages.elasticsearch.org/elasticsearch/1.4/centos
     - gpgcheck: 1
     - enabled: 1
     {% endif %}
